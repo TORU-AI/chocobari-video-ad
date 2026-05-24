@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chocobari 広告動画｜店舗別ダウンロード</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0e14;
+      min-height: 100vh;
+      padding: 56px 32px 80px;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    header h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 200;
+      font-size: 24px;
+      letter-spacing: 0.35em;
+      color: rgba(248,248,246,0.55);
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: rgba(248,248,246,0.25);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #111620;
+      border: 1px solid rgba(248,248,246,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(200,160,96,0.4);
+    }
+
+    /* 9:16 縦動画（Reels・Stories） */
+    .card-preview {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      background: #0d1119;
+      position: relative;
+    }
+
+    /* 1:1 正方形動画の場合は .card-preview.square を使う */
+    .card-preview.square {
+      aspect-ratio: 1 / 1;
+    }
+
+    /* 16:9 横動画の場合は .card-preview.landscape を使う */
+    .card-preview.landscape {
+      aspect-ratio: 16 / 9;
+    }
+
+    .card-preview iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* まだ動画未設定のカード用プレースホルダー */
+    .card-preview .placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: rgba(248,248,246,0.2);
+    }
+
+    .card-preview .placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.3;
+    }
+
+    .card-preview .placeholder span {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    .card-preview .badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(10,12,18,0.75);
+      border: 1px solid rgba(248,248,246,0.12);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: rgba(248,248,246,0.45);
+      backdrop-filter: blur(6px);
+      z-index: 1;
+    }
+
+    .card-body {
+      padding: 20px 20px 22px;
+    }
+
+    .card-station {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 200;
+      font-size: 20px;
+      letter-spacing: 0.2em;
+      color: rgba(248,248,246,0.85);
+      margin-bottom: 16px;
+    }
+
+    .btn-download {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 0;
+      background: linear-gradient(135deg, #c8a060 0%, #b88c48 100%);
+      border: none;
+      border-radius: 7px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      color: #fff8e8;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn-download:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-download:active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .btn-download.disabled {
+      background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn-download svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .card-meta {
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: rgba(248,248,246,0.2);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>広告動画</h1>
+    <p>Meta広告用｜MP4｜店舗別ダウンロード</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- =============================================
+         使い方：
+         1. Google Drive に動画をアップロード
+         2. 共有設定を「リンクを知っている全員」に変更
+         3. 共有URLから FILE_ID を取得
+            例）https://drive.google.com/file/d/★FILE_ID★/view
+         4. 以下の FILE_ID を置き換える
+         ============================================= -->
+
+    <!-- 渋谷 -->
+    <div class="card">
+      <div class="card-preview">
+        <iframe src="https://drive.google.com/file/d/1crvuuhblgUjgC91aPDVnyLX83DMuqzsl/preview" allow="autoplay" allowfullscreen></iframe>
+        <span class="badge">MOV</span>
+      </div>
+      <div class="card-body">
+        <div class="card-station">渋谷</div>
+        <a class="btn-download" href="https://drive.google.com/uc?export=download&id=1crvuuhblgUjgC91aPDVnyLX83DMuqzsl" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          動画をダウンロード
+        </a>
+        <div class="card-meta">渋谷店.mov</div>
+      </div>
+    </div>
+
+    <!-- 新宿三丁目 -->
+    <div class="card">
+      <div class="card-preview">
+        <iframe src="https://drive.google.com/file/d/158OTo2w2uSbqbJD0tekv0Ek-YqwUa_7m/preview" allow="autoplay" allowfullscreen></iframe>
+        <span class="badge">MOV</span>
+      </div>
+      <div class="card-body">
+        <div class="card-station">新宿三丁目</div>
+        <a class="btn-download" href="https://drive.google.com/uc?export=download&id=158OTo2w2uSbqbJD0tekv0Ek-YqwUa_7m" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          動画をダウンロード
+        </a>
+        <div class="card-meta">新宿店.mov</div>
+      </div>
+    </div>
+
+    <!-- 郡山 -->
+    <div class="card">
+      <div class="card-preview">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M10 8l6 4-6 4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>準備中</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-station">郡山</div>
+        <a class="btn-download disabled">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          準備中
+        </a>
+      </div>
+    </div>
+
+    <!-- 中目黒 -->
+    <div class="card">
+      <div class="card-preview">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M10 8l6 4-6 4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>準備中</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-station">中目黒</div>
+        <a class="btn-download disabled">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          準備中
+        </a>
+      </div>
+    </div>
+
+    <!-- 錦糸町 -->
+    <div class="card">
+      <div class="card-preview">
+        <iframe src="https://drive.google.com/file/d/14vX7KHhteCnpOHTqwft7IJ5QkTHvgHDy/preview" allow="autoplay" allowfullscreen></iframe>
+        <span class="badge">MOV</span>
+      </div>
+      <div class="card-body">
+        <div class="card-station">錦糸町</div>
+        <a class="btn-download" href="https://drive.google.com/uc?export=download&id=14vX7KHhteCnpOHTqwft7IJ5QkTHvgHDy" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          動画をダウンロード
+        </a>
+        <div class="card-meta">錦糸町店.mov</div>
+      </div>
+    </div>
+
+    <!-- 横浜 -->
+    <div class="card">
+      <div class="card-preview">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M10 8l6 4-6 4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>準備中</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-station">横浜</div>
+        <a class="btn-download disabled">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          準備中
+        </a>
+      </div>
+    </div>
+
+    <!-- 恵比寿 -->
+    <div class="card">
+      <div class="card-preview">
+        <iframe src="https://drive.google.com/file/d/1kuvWqxbUUPGSYM1ZVsD48m8uivh_yku6/preview" allow="autoplay" allowfullscreen></iframe>
+        <span class="badge">MOV</span>
+      </div>
+      <div class="card-body">
+        <div class="card-station">恵比寿</div>
+        <a class="btn-download" href="https://drive.google.com/uc?export=download&id=1kuvWqxbUUPGSYM1ZVsD48m8uivh_yku6" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          動画をダウンロード
+        </a>
+        <div class="card-meta">恵比寿店.mov</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
